@@ -30,7 +30,7 @@ bot_commands = [
     telebot.types.BotCommand("/disk_info", "Retrieving data from the disk"),
     telebot.types.BotCommand("/net", "Retrieving data from network traffic"),
     telebot.types.BotCommand("/ram", "Retrieving data from RAM"),
-    telebot.types.BotCommasn("/journal", "Show the last n log lines (default 10)")  
+    telebot.types.BotCommand("/journal", "Show the last n log lines (default 10)")  
     ]
 bot.set_my_commands(bot_commands)
 
@@ -79,7 +79,7 @@ def net(msg):
     )
     bot.reply_to(msg, info)
 
-@bot.message_handler(['ram'])
+@bot.message_handler(commands=['ram'])
 def ram(msg):
     print(f"/ram. ID_USER: {msg.from_user.id}")
     if msg.from_user.id != MY_ID:
@@ -99,7 +99,7 @@ def ram(msg):
         "============================"
     )
     bot.reply_to(msg, info)
-@bot.message_handler(["/journal"])
+@bot.message_handler(commands=["journal"])
 def journalctl(msg):
     print(f"/journal. ID_USER: {msg.from_user.id}")
     if msg.from_user.id != MY_ID:
