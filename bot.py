@@ -2,6 +2,7 @@ import telebot
 import shutil
 import psutil  
 import requests
+import subprocess
 
 token = ('YOUR_BOT_TOKEN')
 MY_ID = 'YOUR_ID'
@@ -28,8 +29,9 @@ bot_commands = [
     telebot.types.BotCommand("/start", "Launch the bot"),
     telebot.types.BotCommand("/disk_info", "Retrieving data from the disk"),
     telebot.types.BotCommand("/net", "Retrieving data from network traffic"),
-    telebot.types.BotCommand("/ram", "Retrieving data from RAM")
-]
+    telebot.types.BotCommand("/ram", "Retrieving data from RAM"),
+    telebot.types.BotCommasn("/journal", "Show the last n log lines (default 10)")  
+    ]
 bot.set_my_commands(bot_commands)
 
 @bot.message_handler(commands=['start'])
@@ -97,5 +99,30 @@ def ram(msg):
         "============================"
     )
     bot.reply_to(msg, info)
+@bot.message_handler(["/journal"])
+def journalctl(msg):
+    print(f"/journal. ID_USER: {msg.from_user.id}")
+    if msg.from_user.id != MY_ID:
+        bot.reply_to(msg, "Access denied")
+        return
+    p = msg.text.split(' ')
+    
+    if len(p) > 1:
+        lines = p[1]
+    else:
+        lines = "10"
+    try:
+        result = subprocess.run(
+            ["journalctl", "-n", lines, "--no-pager"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        output = result.stdout.strip()
+        if len(output) > 3500:
+            output = "...\n" + output[-3500:]
+        bot.reply_to(msg, f"journalctl ({lines} lines):\n{output}")
+    except Exception as e:
+        bot.reply_to(msg, f"ERROR: {e}")
 
 bot.infinity_polling()
