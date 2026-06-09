@@ -3,9 +3,13 @@ import shutil
 import psutil  
 import requests
 import subprocess
+import os
+from dotenv import load_dotenv
 
-token = ('YOUR_BOT_TOKEN')
-MY_ID = 'YOUR_ID'
+load_dotenv()
+
+token = (os.getenv('token'))
+MY_ID = int(os.getenv('MY_ID'))
 
 bot = telebot.TeleBot(token)
 
@@ -39,7 +43,7 @@ bot.set_my_commands(bot_commands)
 def start(msg):
     print(f"/start. ID_USER: {msg.from_user.id}")
     if msg.from_user.id == MY_ID:
-        bot.reply_to(msg, "Hello! Use /disk_info , /net or /ram")
+        bot.reply_to(msg, "Hello! Use /disk_info, /net, /ram, /journal or /cpu")
     else:
         bot.reply_to(msg, f"Error")
 
@@ -100,7 +104,7 @@ def ram(msg):
         "============================"
     )
     bot.reply_to(msg, info)
-    
+
 @bot.message_handler(commands=["journal"])
 def journalctl(msg):
     print(f"/journal. ID_USER: {msg.from_user.id}")
