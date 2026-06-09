@@ -30,7 +30,8 @@ bot_commands = [
     telebot.types.BotCommand("/disk_info", "Retrieving data from the disk"),
     telebot.types.BotCommand("/net", "Retrieving data from network traffic"),
     telebot.types.BotCommand("/ram", "Retrieving data from RAM"),
-    telebot.types.BotCommand("/journal", "Show the last n log lines (default 10)")  
+    telebot.types.BotCommand("/journal", "Show the last n log lines (default 10)"),  
+    telebot.types.BotCommand("/cpu", "Shows CPU load")
     ]
 bot.set_my_commands(bot_commands)
 
@@ -99,6 +100,7 @@ def ram(msg):
         "============================"
     )
     bot.reply_to(msg, info)
+    
 @bot.message_handler(commands=["journal"])
 def journalctl(msg):
     print(f"/journal. ID_USER: {msg.from_user.id}")
@@ -124,5 +126,19 @@ def journalctl(msg):
         bot.reply_to(msg, f"journalctl ({lines} lines):\n{output}")
     except Exception as e:
         bot.reply_to(msg, f"ERROR: {e}")
+
+@bot.message_handler(commands=["cpu"])
+def cpu(msg):
+    print(f"/cpu. ID_USER: {msg.from_user.id}")
+    if msg.from_user.id != MY_ID:
+        bot.reply_to(msg, "Access denied")
+        return
+    per = psutil.cpu_percent(interval=1)
+    info = (
+        "============================\n"
+        f"CPU load: {per:.2f}%\n"
+        "============================\n"
+    )
+    bot.reply_to(msg, info)
 
 bot.infinity_polling()
